@@ -10,6 +10,9 @@ import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.widget.TextView;
 import java.util.ArrayList;
+import android.view.View;
+import android.widget.Button;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,15 +26,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        textOutput= findViewById(R.id.textOutput);
+        textOutput = findViewById(R.id.textOutput);
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecognizer.setRecognitionListener(new SpeechListener());
         startRecognition();
+        Button btnOpenGL = findViewById(R.id.btnOpenGL);
+        btnOpenGL.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentOpenGL = new Intent(MainActivity.this, OpenGLES20Activity.class);
+                startActivity(intentOpenGL);
+            }
+        });
     }
 
-
-    public void startRecognition() {
+    public void startRecognition(){
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"voice.recognition.test");
@@ -40,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         speechRecognizer.startListening(intent);
     }
 
-    class SpeechListener implements RecognitionListener {
+    public class SpeechListener implements RecognitionListener {
         public void onReadyForSpeech(Bundle params)
         {
             Log.d(TAG, "onReadyForSpeech");
