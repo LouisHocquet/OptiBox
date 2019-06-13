@@ -46,8 +46,8 @@
                     android:layout_marginTop="8dp"
                     android:text="+"
                     android:textSize="30sp"
-                    app:layout_constraintStart_toStartOf="@+id/tvNbType1"
-                    app:layout_constraintTop_toBottomOf="@+id/tvNbType1" />
+                    app:layout_constraintStart_toStartOf="@+id/tvType1"
+                    app:layout_constraintTop_toBottomOf="@+id/tvType1" />
 
                 <Button
                     android:id="@+id/btnRetraitType1"
@@ -56,20 +56,20 @@
                     android:layout_marginTop="8dp"
                     android:text="-"
                     android:textSize="30sp"
-                    app:layout_constraintEnd_toEndOf="@+id/tvNbType1"
-                    app:layout_constraintTop_toBottomOf="@+id/tvNbType1" />
+                    app:layout_constraintEnd_toEndOf="@+id/tvType1"
+                    app:layout_constraintTop_toBottomOf="@+id/tvType1" />
 
                 <TextView
-                    android:id="@+id/tvNbType1"
+                    android:id="@+id/tvType1"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:background="@color/colorWhite"
                     android:gravity="center"
                     android:paddingHorizontal="25dp"
-                    android:paddingVertical="10dp"
+                    android:paddingVertical="5dp"
                     android:text="0"
                     android:textSize="24sp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -102,16 +102,16 @@
                     tools:layout_editor_absoluteX="135dp" />
 
                 <TextView
-                    android:id="@+id/tvNbType2"
+                    android:id="@+id/tvType2"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:background="@color/colorWhite"
                     android:gravity="center"
                     android:paddingHorizontal="25dp"
-                    android:paddingVertical="10dp"
+                    android:paddingVertical="5dp"
                     android:text="0"
                     android:textSize="24sp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -125,8 +125,8 @@
                     android:layout_marginTop="8dp"
                     android:text="+"
                     android:textSize="30sp"
-                    app:layout_constraintStart_toStartOf="@+id/tvNbType2"
-                    app:layout_constraintTop_toBottomOf="@+id/tvNbType2" />
+                    app:layout_constraintStart_toStartOf="@+id/tvType2"
+                    app:layout_constraintTop_toBottomOf="@+id/tvType2" />
 
                 <Button
                     android:id="@+id/btnRetraitType2"
@@ -135,8 +135,8 @@
                     android:layout_marginTop="8dp"
                     android:text="-"
                     android:textSize="30sp"
-                    app:layout_constraintEnd_toEndOf="@+id/tvNbType2"
-                    app:layout_constraintTop_toBottomOf="@+id/tvNbType2" />
+                    app:layout_constraintEnd_toEndOf="@+id/tvType2"
+                    app:layout_constraintTop_toBottomOf="@+id/tvType2" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
 
@@ -177,12 +177,12 @@
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:background="@color/colorWhite"
                     android:gravity="center"
                     android:paddingHorizontal="25dp"
-                    android:paddingVertical="10dp"
+                    android:paddingVertical="5dp"
                     android:text="0"
                     android:textSize="24sp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -239,12 +239,12 @@
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:background="@color/colorWhite"
                     android:gravity="center"
                     android:paddingHorizontal="25dp"
-                    android:paddingVertical="10dp"
+                    android:paddingVertical="5dp"
                     android:text="0"
                     android:textSize="24sp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -309,12 +309,12 @@
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:background="@color/colorWhite"
                     android:gravity="center"
                     android:paddingHorizontal="25dp"
-                    android:paddingVertical="10dp"
+                    android:paddingVertical="5dp"
                     android:text="0"
                     android:textSize="24sp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -370,12 +370,12 @@
                     android:id="@+id/tvType6"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:background="@color/colorWhite"
                     android:gravity="center"
                     android:paddingHorizontal="25dp"
-                    android:paddingVertical="10dp"
+                    android:paddingVertical="5dp"
                     android:text="0"
                     android:textSize="24sp"
                     app:layout_constraintEnd_toEndOf="parent"
