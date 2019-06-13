@@ -18,5 +18,4 @@ public class OpenGLES20Activity extends AppCompatActivity {
         gLView = new CustomGLSurfaceView(this);
         setContentView(gLView);
     }
-
 }
