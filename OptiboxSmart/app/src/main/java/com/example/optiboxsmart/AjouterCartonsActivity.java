@@ -2,6 +2,7 @@ package com.example.optiboxsmart;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -40,6 +41,8 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
     private List<Button> listBtnAjout;
     private List<Button> listBtnRetrait;
 
+    private Button btnValiderCartons;
+
     private static String CAT = "PMR";
     // Fonction alerter()
     private void alerter(String s){
@@ -53,7 +56,6 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ajouter_cartons);
         mapCartons = new HashMap<>();
-
     }
 
     @Override
@@ -78,6 +80,8 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
         tvNbType5 = findViewById(R.id.tvType5);
         tvNbType6 = findViewById(R.id.tvType6);
 
+        btnValiderCartons = findViewById(R.id.btnValiderCartons);
+
         for (int i = 0; i < 6; i++) {
             mapCartons.put(i+1, 0);
         }
@@ -94,6 +98,8 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
             listBtnRetrait.get(i).setOnClickListener(this);
             listBtnAjout.get(i).setOnClickListener(this);
         }
+
+        btnValiderCartons.setOnClickListener(this);
     }
 
     // ########### Fonctions gestion des cartons #########
@@ -133,19 +139,6 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
             listNbCartons.get(typeCarton-1).setText(String.valueOf(nbCartons));
             return true;
         }
-    }
-
-    /**
-     *
-     * @return true
-     */
-    public boolean actualisationNbCartons(){
-        for (int i = 1; i < 7; i++) {
-            int nbCartons = mapCartons.get(i);
-            alerter(String.valueOf(nbCartons));
-                tvNbType1.setText(String.valueOf(nbCartons));
-        }
-        return true;
     }
 
     @Override
@@ -190,6 +183,14 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
             case R.id.btnRetraitType6:
                 retraitCarton(6);
                 break;
+
+            case R.id.btnValiderCartons:
+                Bundle myBdl = new Bundle();
+                myBdl.putSerializable("mapCartons", (HashMap) mapCartons);
+                Intent toEnvoiBluetooth = new Intent(this, EnvoiBluetooth.class);
+                toEnvoiBluetooth.putExtras(myBdl);
+                startActivity(toEnvoiBluetooth);
+
         }
     }
 }
