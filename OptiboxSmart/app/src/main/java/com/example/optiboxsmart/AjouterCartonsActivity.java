@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -192,5 +194,18 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
                 startActivity(toEnvoiBluetooth);
 
         }
+    }
+
+    // ############### Sérialisation/ Désérialisation ###################################
+    public Map<Integer, Integer> deserialisation(String jsonMapCartons){
+        Gson gson = new Gson();
+        Map<Integer, Integer> mapCartons = gson.fromJson(jsonMapCartons, Map.class);
+        return mapCartons;
+    }
+
+
+    public String serialisation(Map<Integer, Integer> mapCartons){
+        Gson gson = new Gson();
+        return gson.toJson(mapCartons);
     }
 }
