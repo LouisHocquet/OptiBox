@@ -46,6 +46,7 @@ class CustomGLRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
         // Set the background frame color
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
 
         float blue[] = {0.0f,0.0f,1.0f,1f};
@@ -58,8 +59,13 @@ class CustomGLRenderer implements GLSurfaceView.Renderer {
         cardboads.add(cardboard);
 
         cardboard = new FullBlock();
+        cardboard.setColor(grey);
+        cardboard.setDiagonalAG(convertDataToCoords(10,0,camionLz-10,23,8,camionLz));
+        cardboads.add(cardboard);
+
+        cardboard = new FullBlock();
         cardboard.setColor(green);
-        cardboard.setDiagonalAG(convertDataToCoords(10,0,camionLz-10,23,5,camionLz));
+        cardboard.setDiagonalAG(convertDataToCoords(15,8,camionLz-10,23,15,camionLz));
         cardboads.add(cardboard);
 
     }
@@ -70,8 +76,9 @@ class CustomGLRenderer implements GLSurfaceView.Renderer {
 
         // Redraw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        GLES20.glCullFace(GLES20.GL_FRONT);
+        GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
         GLES20.glLineWidth(5f);
+
 
         //
         //Matrix.translateM();
@@ -85,12 +92,21 @@ class CustomGLRenderer implements GLSurfaceView.Renderer {
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 
+        float translateToCenter[] = new float[16];
+        Matrix.translateM(translateToCenter,0,camionDiagonalAG[0]-camionDiagonalAG[3],
+                                              camionDiagonalAG[1]-camionDiagonalAG[4],
+                                                0);
+
         // Create a rotation transformation for the triangle
-        Matrix.setRotateM(rotationMatrix, 0, mAngle, 0, 0, -1.0f);
+        Matrix.setRotateM(rotationMatrix, 0, mAngle, 0, -1.0f, 0.0f);
 
         // Combine the rotation matrix with the projection and camera view
         // Note that the vPMatrix factor *must be first* in order
         // for the matrix multiplication product to be correct.
+
+        //float translateNRotate[] = new float[16];
+        //Matrix.multiplyMM(translateNRotate, 0, rotationMatrix, 0, translateToCenter, 0);
+
         Matrix.multiplyMM(scratch, 0, mvpMatrix, 0, rotationMatrix, 0);
 
         float blue[] = {0.0f,0.0f,1.0f,1.0f};

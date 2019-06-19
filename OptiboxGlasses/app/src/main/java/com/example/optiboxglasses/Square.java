@@ -174,7 +174,7 @@ public class Square {
         // get handle to fragment shader's vColor member
         mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor");
 
-        // Set color for drawing the triangle
+        // Set color for drawing the triangles
         GLES20.glUniform4fv(mColorHandle, 1, mFillColor, 0);
 
         // get handle to shape's transformation matrix
@@ -183,8 +183,14 @@ public class Square {
         // Pass the projection and view transformation to the shader
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0);
 
-        // Draw the triangle
+        // Draw the triangles
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, mVertexCount);
+
+        //Lines
+        GLES20.glUniform4fv(mColorHandle, 1, new float[]{0f,0f,0f,1f}, 0);
+        GLES20.glDrawArrays(GLES20.GL_LINES, 0, mVertexCount);
+
+
 
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(mPositionHandle);
