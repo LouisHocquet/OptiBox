@@ -28,7 +28,6 @@ public class Loader {
     final int PHI; // constant for the reevaluation of selection probabilities of an evaluation set
     /* Iteration variables */
     private double mBestVol; // volume of the best container solution
-    private Container mBestContainer; // best solution
 
     /* Contructors */
 
@@ -46,7 +45,6 @@ public class Loader {
         PHI = 10;
         // Initialization of 'iteration' variables
         mBestVol = 0;
-        mBestContainer = new Container(this.getDimContainer(), this.getBoxes());
     }
 
     /* Getters and Setters */
@@ -177,15 +175,13 @@ public class Loader {
         for (int iter = 0; iter < ITER; iter ++){
 
             if (iter != 0 && iter % K == 0) { // reevaluation of the selection probabilities proba
-                System.out.print("Reevaluation (" + iter + ") ");
                 for (int i = 0; i < nSets; i++) {
-                    lambda[i] = Math.pow(volumePerEval[i]/(Math.max(1, evalCounter[i])*bestContainer.getFilledVolume()), PHI);
+                    lambda[i] = Math.pow(volumePerEval[i]/(Math.max(1, evalCounter[i])*mBestVol), PHI);
                 }
                 double sum = Arrays.stream(lambda).sum();
                 for (int i = 0; i < nSets; i++) {
                     proba[i] = lambda[i] / sum;
                 }
-                System.out.println(Arrays.toString(evalCounter) + " | " + Arrays.toString(proba));
             }
 
             int evalIndex = chooseRandomIndexInProba(proba);
@@ -195,12 +191,10 @@ public class Loader {
             evalCounter[evalIndex] += 1;
 
             if (bestContainer == null || container.compareTo(bestContainer) >= 1){
-                System.out.print("(" + iter + ") ");
-                System.out.println(container);
                 bestContainer = container;
+                mBestVol = container.getFilledVolume();
             }
         }
-        System.out.println("\n\n" + bestContainer);
         return bestContainer;
     }
 

@@ -1,6 +1,8 @@
 package com.example.optiboxsmart.clp_solver;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.IntBinaryOperator;
 
 public class Block {
@@ -132,6 +134,27 @@ public class Block {
 
     public int compareTo(Block other){
         return this.compareTo(other, new int[] {0, 1, 2, 3, 4, 5});
+    }
+
+    public List<double[]> toArray(){
+        List<double[]> l = new ArrayList<>();
+        double[] iDim = mItem.getDim();
+        for (int i = 0; i < mN[0]; i++) {
+            for (int j = 0; j < mN[1]; j++) {
+                for (int k = 0; k < mN[2]; k++) {
+                    l.add(new double[] {
+                            i*iDim[0] + mPos[0],
+                            j*iDim[1] + mPos[1],
+                            k*iDim[2] + mPos[2],
+                            iDim[0],
+                            iDim[1],
+                            iDim[2],
+                    });
+                }
+            }
+        }
+        return l;
+
     }
 
     @Override

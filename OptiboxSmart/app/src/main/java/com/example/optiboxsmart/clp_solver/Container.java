@@ -177,6 +177,13 @@ public class Container {
         return false;
     }
 
+    public List<double[]> toArray(){
+        List<double[]> l = new ArrayList<>();
+        for (Block b : mBlocks){
+            l.addAll(b.toArray());
+        }
+        return l;
+    }
 
 
 
