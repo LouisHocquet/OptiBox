@@ -26,9 +26,15 @@ public class Triangle {
 
     //openGL parameters
     private final String mVertexShaderCode =
-            "attribute vec4 vPosition;" +
+            // This matrix member variable provides a hook to manipulate
+            // the coordinates of the objects that use this vertex shader
+            "uniform mat4 uMVPMatrix;" +
+                    "attribute vec4 vPosition;" +
                     "void main() {" +
-                    "  gl_Position = vPosition;" +
+                    // the matrix must be included as a modifier of gl_Position
+                    // Note that the uMVPMatrix factor *must be first* in order
+                    // for the matrix multiplication product to be correct.
+                    "  gl_Position = uMVPMatrix * vPosition;" +
                     "}";
 
     private final String mFragmentShaderCode =
@@ -39,21 +45,25 @@ public class Triangle {
                     "}";
     private final int mProgram;
 
+    //Matrix projections
+    // Use to access and set the view transformation
+    private int mvpMatrixHandle;
+
 
     // Set color with red, green, blue and alpha (opacity) values
-    private float mColor[];
+    private float mFillColor[];
 
     public Triangle(){
         this(   new float[]{0.0f, 0.0f, 0.0f},
-                new float[]{0.5f, 0.0f, 0.0f},
-                new float[]{0.0f, 0.5f, 0.0f},
+                new float[]{0.1f, 0.0f, 0.0f},
+                new float[]{0.0f, 0.1f, 0.0f},
                 new float[]{1.0f, 0.0f, 0.0f, 1.0f}
             ); //RED by default
     }
 
     public Triangle(float color[]){
         this();
-        mColor = color; //RED by default
+        mFillColor = color; //RED by default
     }
 
     public Triangle(float pA[], float pB[], float pC[]){
@@ -75,24 +85,7 @@ public class Triangle {
         mPointA = pA;
         mPointB = pB;
         mPointC = pC;
-        mColor = col;
-
-        // initialize vertex byte buffer for shape coordinates
-        ByteBuffer bb = ByteBuffer.allocateDirect(
-                // (number of coordinate values * 4 bytes per float)
-                COORDS_PER_VERTEX*3* 4);
-        // use the device hardware's native byte order
-        bb.order(ByteOrder.nativeOrder());
-
-        // create a floating point buffer from the ByteBuffer
-        mVertexBuffer = bb.asFloatBuffer();
-        // add the coordinates to the FloatBuffer
-        mVertexBuffer.put(mPointA);
-        mVertexBuffer.put(mPointB);
-        mVertexBuffer.put(mPointC);
-        // set the buffer to read the first coordinate
-        mVertexBuffer.position(0);
-
+        mFillColor = col;
 
         //RENDER IN OPENGL
         int vertexShader = CustomGLRenderer.loadShader(GLES20.GL_VERTEX_SHADER,
@@ -123,11 +116,11 @@ public class Triangle {
     }
 
     public float[] getColor() {
-        return mColor;
+        return mFillColor;
     }
 
     public void setColor(float[] mColor) {
-        this.mColor = mColor;
+        this.mFillColor = mColor;
     }
 
     public FloatBuffer getVertexBuffer() {
@@ -146,7 +139,24 @@ public class Triangle {
         return mPointC;
     }
 
-    public void draw() {
+    public void draw(float[] mvpMatrix) {
+
+        // initialize vertex byte buffer for shape coordinates
+        ByteBuffer bb = ByteBuffer.allocateDirect(
+                // (number of coordinate values * 4 bytes per float)
+                COORDS_PER_VERTEX*3* 4);
+        // use the device hardware's native byte order
+        bb.order(ByteOrder.nativeOrder());
+
+        // create a floating point buffer from the ByteBuffer
+        mVertexBuffer = bb.asFloatBuffer();
+        // add the coordinates to the FloatBuffer
+        mVertexBuffer.put(mPointA);
+        mVertexBuffer.put(mPointB);
+        mVertexBuffer.put(mPointC);
+        // set the buffer to read the first coordinate
+        mVertexBuffer.position(0);
+
         // Add program to OpenGL ES environment
         GLES20.glUseProgram(mProgram);
 
@@ -164,18 +174,17 @@ public class Triangle {
         // get handle to fragment shader's vColor member
         mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor");
 
-        //TEST
-        GLES20.glUniform4fv(mColorHandle, 1, new float[]{0.0f,1.0f,0.0f,1.0f}, 0);
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, mVertexCount);
-
         // Set color for drawing the triangle
-        GLES20.glUniform4fv(mColorHandle, 1, mColor, 0);
+        GLES20.glUniform4fv(mColorHandle, 1, mFillColor, 0);
+
+        // get handle to shape's transformation matrix
+        mvpMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
+
+        // Pass the projection and view transformation to the shader
+        GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0);
 
         // Draw the triangle
-        GLES20.glDrawArrays(GLES20.GL_LINE_LOOP, 1, mVertexCount);
-
-
-
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, mVertexCount);
 
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(mPositionHandle);
