@@ -13,6 +13,7 @@ import com.example.optiboxsmart.clp_solver.Box;
 import com.example.optiboxsmart.clp_solver.Container;
 import com.example.optiboxsmart.clp_solver.Loader;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,7 +47,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Loader clp = new Loader(new double[]{587, 233, 220}, boxes);
         Container container = clp.solve();
         Log.i(TAG, container.toString());
-//        Loader.main(new String[0]);
+        for (double[] d : container.toArray()){
+            Log.i(TAG, Arrays.toString(d) + ",");
+        }
     }
 
     @Override
