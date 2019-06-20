@@ -89,9 +89,11 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         // Bluetooth pris en charge ?
-        tvResultBluetooth.setText("Connexion Bluetooth ...");
+/*        tvResultBluetooth.setText("Connexion Bluetooth ...");
         if(isBluetoothOk(bluetoothAdapter)) tvResultBluetooth.setText("Bluetooth ok !");
-        else tvResultBluetooth.setText("Bluetooth pas ok ...");
+        else tvResultBluetooth.setText("Bluetooth pas ok ...");*/
+
+        tvResultBluetooth.setText(pairedDevices.toString());
 
     }
 
@@ -173,9 +175,12 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
 
                 if (pairedDevices.size() > 0) {
                     // There are paired devices. Get the name and address of each paired device.
-//            for (BluetoothDevice device : pairedDevices) {
-//                String deviceName = device.getName();
-//                String deviceHardwareAddress = device.getAddress(); // MAC address
+                   for (BluetoothDevice device : pairedDevices) {
+                       String deviceName = device.getName();
+                       String deviceHardwareAddress = device.getAddress(); // MAC address
+                       connectThread = new ConnectThread(device);
+                       connectThread.run();
+                   }
 
                     alerter("il y a des appareils apairés");
                 } else {
@@ -189,11 +194,7 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.btnRunClient:
-                if (bluetoothDevice != null) {
-                    connectThread = new ConnectThread(bluetoothDevice);
-                    connectThread.run();
-                    break;
-                }
+                //
 
         }
     }
@@ -229,7 +230,7 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
             try {
                 // Get a BluetoothSocket to connect with the given BluetoothDevice.
                 // MY_UUID is the app's UUID string, also used in the server code.
-                tmp = device.createRfcommSocketToServiceRecord(UUID.fromString("1da2c6c6-f44c-4cfb-96cd-f6a7ea7db0a1"));
+                tmp = mmDevice.createRfcommSocketToServiceRecord(UUID.fromString("1da2c6c6-f44c-4cfb-96cd-f6a7ea7db0a1"));
             } catch (IOException e) {
                 Log.e(CAT, "Socket's create() method failed", e);
             }
@@ -245,6 +246,7 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
                 // until it succeeds or throws an exception.
                 mmSocket.connect();
                 tvRunClient.setText("succès");
+                bluetoothDevice=mmDevice;
             } catch (IOException connectException) {
                 // Unable to connect; close the socket and return.
                 try {
