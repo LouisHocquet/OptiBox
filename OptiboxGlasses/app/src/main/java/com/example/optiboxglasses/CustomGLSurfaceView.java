@@ -70,6 +70,10 @@ class CustomGLSurfaceView extends GLSurfaceView {
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
 
+    public void updateCardboardsList(){
+        renderer.updateCardboardsList();
+        requestRender();
+    }
 
 
 }

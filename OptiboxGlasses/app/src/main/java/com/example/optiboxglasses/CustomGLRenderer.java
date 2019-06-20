@@ -3,7 +3,6 @@ package com.example.optiboxglasses;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.os.SystemClock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,7 @@ class CustomGLRenderer implements GLSurfaceView.Renderer {
     private float[] rotationMatrix = new float[16];
 
     public volatile float mAngle;
-    private List<FullBlock> cardboads= new ArrayList<>();
+    private List<FullBlock> cardboards = new ArrayList<>();
     private List<Line> mLines = new ArrayList<>();
 
 
@@ -41,6 +40,10 @@ class CustomGLRenderer implements GLSurfaceView.Renderer {
                                         0.5f*(camionDiagonalAG[2]+camionDiagonalAG[5])};
     static final float[] cameraUp = {0.0f,1.0f,0.0f};
 
+    static final float blue[] = {0.0f,0.0f,1.0f,1f};
+    static final float green[] = {0.0f,1.0f,0.0f,1.0f};
+    static final float grey[] = {0.4f,0.4f,0.4f,1.0f};
+
 
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
@@ -48,25 +51,15 @@ class CustomGLRenderer implements GLSurfaceView.Renderer {
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
-
-        float blue[] = {0.0f,0.0f,1.0f,1f};
-        float green[] = {0.0f,1.0f,0.0f,1.0f};
-        float grey[] = {0.4f,0.4f,0.4f,1.0f};
-
         FullBlock cardboard = new FullBlock();
         cardboard.setColor(grey);
         cardboard.setDiagonalAG(convertDataToCoords(0,0,camionLz-10,10,15,camionLz));
-        cardboads.add(cardboard);
-
-        cardboard = new FullBlock();
-        cardboard.setColor(grey);
-        cardboard.setDiagonalAG(convertDataToCoords(10,0,camionLz-10,23,8,camionLz));
-        cardboads.add(cardboard);
+        cardboards.add(cardboard);
 
         cardboard = new FullBlock();
         cardboard.setColor(green);
-        cardboard.setDiagonalAG(convertDataToCoords(15,8,camionLz-10,23,15,camionLz));
-        cardboads.add(cardboard);
+        cardboard.setDiagonalAG(convertDataToCoords(10,0,camionLz-10,23,8,camionLz));
+        cardboards.add(cardboard);
 
     }
 
@@ -115,7 +108,7 @@ class CustomGLRenderer implements GLSurfaceView.Renderer {
         camion.setColor(blue);
         camion.draw(scratch);
 
-        for(FullBlock cardboard: cardboads){
+        for(FullBlock cardboard: cardboards){
             cardboard.draw(scratch);
         }
     }
@@ -153,4 +146,12 @@ class CustomGLRenderer implements GLSurfaceView.Renderer {
         return new float[]{xA*volexSize, yA*volexSize, -zA*volexSize, xG*volexSize, yG*volexSize, -zG*volexSize};
     }
 
+    public void updateCardboardsList() {
+        cardboards.get(cardboards.size() -1).setColor(grey);
+
+        FullBlock cardboard = new FullBlock();
+        cardboard.setColor(green);
+        cardboard.setDiagonalAG(convertDataToCoords(15,8,camionLz-10,23,15,camionLz));
+        cardboards.add(cardboard);
+    }
 }
