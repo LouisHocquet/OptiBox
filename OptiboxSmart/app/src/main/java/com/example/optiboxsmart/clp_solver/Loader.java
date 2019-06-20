@@ -198,6 +198,30 @@ public class Loader {
         return bestContainer;
     }
 
+    public List<double[]> solveToArray(){
+        Container container = solve();
+        List<double[]> l = new ArrayList<>();
+        for (double[] d : container.toArray()){
+//            System.out.println("avant" + Arrays.toString(d));
+            double [] pos = new double[]{d[0], d[1], d[2]};
+            double [] dim = new double[]{d[3], d[4], d[5]};
+//            System.out.println(dim[0]);
+            // changement de repère (x,y,z) -> (y, z, x-X) (où X est la largeur du container
+            double[] new_pos = new double[]{pos[1], pos[2], pos[0] - container.getDim(0)};
+            double[] pointsAG = new double[]{
+                    new_pos[0], //Ax
+                    new_pos[1], //Ay
+                    -(new_pos[2] + dim[0]), //Az
+                    new_pos[0] + dim[1], //Gx
+                    new_pos[1] + dim[2], //Gy
+                    -new_pos[2] //Gz
+            };
+//            System.out.println("après" + Arrays.toString(pointsAG));
+            l.add(pointsAG);
+        }
+        return l;
+    }
+
     /* Public Method */
 
     /* toString & Main */

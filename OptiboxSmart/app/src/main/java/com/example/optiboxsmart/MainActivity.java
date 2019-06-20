@@ -15,6 +15,7 @@ import com.example.optiboxsmart.clp_solver.Loader;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
@@ -35,21 +36,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnStart.setOnClickListener(this);
 
         /* Testing CLP */
-        Box i1 = new Box(new double[]{100, 76, 30});
-        Box i2 = new Box(110, 43, 25, new byte[]{0, 1, 1});
-        Box i3 = new Box(92, 81, 55, new byte[]{1, 1, 1});
+        Box[] boxTypes = new Box[]{
+                new Box(new double[]{100, 76, 30}),
+                new Box(110, 43, 25, new byte[]{0, 1, 1}),
+                new Box(92, 81, 55, new byte[]{1, 1, 1}),
+                new Box(new double[]{200, 26, 18}),
+                new Box(50, 143, 14, new byte[]{0, 1, 1}),
+                new Box(29, 92, 13, new byte[]{1, 1, 1}),
+        };
+        double[] containerDim = new double[]{587, 233, 220};
+        int[] boxNumber = new int[]{40, 33, 39, 0, 0, 0};
 
-        HashMap<Box, Integer> boxes = new HashMap<>();
-        boxes.put(i1, 40);
-        boxes.put(i2, 33);
-        boxes.put(i3, 39);
+        HashMap<Box, Integer> cargo = new HashMap<>();
+        for (int n = 0; n < 6; n++){
+            cargo.put(boxTypes[n], boxNumber[n]);
+        }
 
-        Loader clp = new Loader(new double[]{587, 233, 220}, boxes);
-        Container container = clp.solve();
-        Log.i(TAG, container.toString());
-        for (double[] d : container.toArray()){
+
+        Loader clp = new Loader(containerDim, cargo);
+        List<double[]> boxes = clp.solveToArray();
+        for (double[] d : boxes){
             Log.i(TAG, Arrays.toString(d) + ",");
         }
+        /* End testing CLP*/
     }
 
     @Override

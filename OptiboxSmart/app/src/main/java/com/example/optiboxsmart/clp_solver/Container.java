@@ -59,6 +59,8 @@ public class Container {
         return mDim.clone();
     }
 
+    public double getDim(int i) {return mDim[i];}
+
     public double getFilledVolume() {
         return mBlocks.stream().mapToDouble(new ToDoubleFunction<Block>() {
             @Override
