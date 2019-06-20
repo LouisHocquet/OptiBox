@@ -25,6 +25,8 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
 
     private static final String TAG = "AjouterCartonsActivity";
 
+    private String sepQR = "CartonType="; // Ex de string in the qr code : 'CartonType=2'
+
     private Map<Integer, Integer> mapCartons;
     private TextView tvNbType1;
     private TextView tvNbType2;
@@ -216,11 +218,13 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if(result != null) {
             if(result.getContents() == null) {
-                Log.d(TAG, "onActivityResult: cancelled.");
-                Toast.makeText(this, "cancelled", Toast.LENGTH_LONG).show();
+//                Log.d(TAG, "onActivityResult: cancelled.");
+                Toast.makeText(this, "QR scan cancelled", Toast.LENGTH_LONG).show();
             } else {
-                Log.d(TAG, "onActivityResult: scanned = "+result.getContents());
-                Toast.makeText(this, result.getContents(), Toast.LENGTH_LONG).show();
+//                Log.d(TAG, "onActivityResult: scanned = "+result.getContents());
+//                Toast.makeText(this, result.getContents(), Toast.LENGTH_LONG).show();
+                int iCarton = Integer.parseInt(result.getContents().split(sepQR)[1]);
+                ajoutCarton(iCarton);
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
