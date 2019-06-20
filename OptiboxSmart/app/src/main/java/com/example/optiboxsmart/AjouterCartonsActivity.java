@@ -202,7 +202,10 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
                 retraitCarton(6);
                 break;
             case R.id.btnAjoutQrCode:
-                new IntentIntegrator(this).initiateScan();
+                IntentIntegrator intent = new IntentIntegrator(this);
+                intent.setCaptureActivity(AnyOrientationCaptureActivity.class);
+                intent.setOrientationLocked(false);
+                intent.initiateScan();
                 break;
         }
     }
@@ -214,8 +217,10 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
         if(result != null) {
             if(result.getContents() == null) {
                 Log.d(TAG, "onActivityResult: cancelled.");
+                Toast.makeText(this, "cancelled", Toast.LENGTH_LONG).show();
             } else {
                 Log.d(TAG, "onActivityResult: scanned = "+result.getContents());
+                Toast.makeText(this, result.getContents(), Toast.LENGTH_LONG).show();
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
