@@ -1,14 +1,14 @@
 package com.example.optiboxsmart;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -18,6 +18,9 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -26,12 +29,17 @@ public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickLis
 
     private String TAG = "Bluetooth";
 
+    private ArrayList<Integer> listeCartons;
+    private TextView tvListeCartons;
+    private List<double[]> listeDouble = new ArrayList<>();
+
+    // Déclaration BluetoothAdapter et BluetoothDevice
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothDevice bluetoothDevice;
-    private Button btnConnexionBluetooth;
-    private  Button btnRunServer;
-    private TextView tvRunServer;
-    private TextView tvConnexionBluetooth;
+
+
+    private Button btnRecupData;
+    private TextView tvRecupData;
     private Set<BluetoothDevice> pairedDevices;
 
 
@@ -52,21 +60,26 @@ public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onStart() {
         super.onStart();
-        btnConnexionBluetooth = findViewById(R.id.btnConnexionBluetooth);
-        tvConnexionBluetooth = findViewById(R.id.tvConnexionBluetooth);
+        btnRecupData = findViewById(R.id.btnEnvoiData);
+        tvRecupData = findViewById(R.id.tvRecupData);
+        tvListeCartons = findViewById(R.id.tvListeCartons);
 
-        btnRunServer = findViewById(R.id.btnRunServer);
-        tvRunServer = findViewById(R.id.tvRunServer);
-
+        // Instanciation du BluetoothAdapter
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         pairedDevices = bluetoothAdapter.getBondedDevices();
-        tvConnexionBluetooth.setText(pairedDevices.toString());
 
-        btnConnexionBluetooth.setOnClickListener(this);
-        btnRunServer.setOnClickListener(this);
+        btnRecupData.setOnClickListener(this);
+
+
+        double[] testDouble = new double[]{0.,1.,2.,3.,4.,5.};
+        listeDouble.add(testDouble);
+
+        Bundle myBundle = this.getIntent().getExtras();
+        listeCartons = (ArrayList<Integer>) myBundle.get("listeCartons");
+        tvListeCartons.setText(listeCartons.toString());
     }
 
-    @Override
+/*    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -76,68 +89,19 @@ public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickLis
         } else {
             alerter("Bluetooth inactif ...");
         }
-    }
+    }*/
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.btnConnexionBluetooth:
-                if (isBluetoothOk(bluetoothAdapter)){
-//                    tvConnexionBluetooth.setText("Bluetooth ok");
-                    if(activerBluetooth(bluetoothAdapter)) tvConnexionBluetooth.setText("" +
-                            "Bluetooth actif");
-                }
-                else tvConnexionBluetooth.setText("Bluetooth kaput");
-                break;
 
-            case R.id.btnRunServer:
+            case R.id.btnEnvoiData:
                 AcceptThread acceptThread = new AcceptThread();
                 acceptThread.run();
         }
     }
 
-    /**
-     *
-     * @return true si l'appareil supporte Bluetooth
-     */
-    public boolean isBluetoothOk(BluetoothAdapter bluetoothAdapter){
-        if (bluetoothAdapter == null){
-            alerter("Bluetooth non supporté");
-            return false;
-        } else {
-            alerter("Bluetooth supporté");
-            return true;
-        }
-    }
 
-    public boolean activerBluetooth(BluetoothAdapter bluetoothAdapter){
-        if (!bluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, 1); //request code > 0
-
-            // if success --> l'activité reçoit RESULT_OK (onActivityResult() )
-            // else --> l'activité reçoit RESULT_CANCELED
-            alerter("activation");
-            return false;
-
-        } else {
-            alerter("déjà actif");
-            return true;
-        }
-    }
-
-    // ############### Sérialisation/ Désérialisation ###################################
-    public Map<Integer, Integer> deserialisation(String jsonMapCartons){
-        Gson gson = new Gson();
-        Map<Integer, Integer> mapCartons = gson.fromJson(jsonMapCartons, Map.class);
-        return mapCartons;
-    }
-
-
-    public String serialisation(Map<Integer, Integer> mapCartons){
-        Gson gson = new Gson();
-        return gson.toJson(mapCartons);
-    }
 
     // ############## Connect as a server ###############################################
     private class AcceptThread extends Thread {
@@ -157,12 +121,16 @@ public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickLis
         }
 
         public void run() {
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(EnvoiBluetooth.this);
+            SharedPreferences.Editor editor = settings.edit();
+
             BluetoothSocket socket = null;
+            String mac = settings.getString("MAC", null);
             // Keep listening until exception occurs or a socket is returned.
-            while (true) {
+            while (socket == null) {
                 try {
                     socket = mmServerSocket.accept();
-                    alerter("succès");
+//                    alerter("succès");
                 } catch (IOException e) {
                     Log.e(TAG, "Socket's accept() method failed", e);
                     break;
@@ -171,15 +139,24 @@ public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickLis
                 if (socket != null) {
                     // A connection was accepted. Perform work associated with
                     // the connection in a separate thread.
-                    tvConnexionBluetooth.setText("Connexion acceptée");
+                    tvRecupData.setText("Connexion acceptée");
+                    BluetoothCom bluetoothCom = new BluetoothCom(socket);
+                    bluetoothCom.setCartons(listeDouble);
+                    try {
+                        bluetoothCom.send();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     try {
                         mmServerSocket.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    break;
+
                 }
+
             }
+
         }
 
         // Closes the connect socket and causes the thread to finish.
@@ -190,6 +167,19 @@ public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickLis
                 Log.e(TAG, "Could not close the connect socket", e);
             }
         }
+    }
+
+    // ############### Sérialisation/ Désérialisation ###################################
+    public Map<Integer, Integer> deserialisation(String jsonMapCartons){
+        Gson gson = new Gson();
+        Map<Integer, Integer> mapCartons = gson.fromJson(jsonMapCartons, Map.class);
+        return mapCartons;
+    }
+
+
+    public String serialisation(Map<Integer, Integer> mapCartons){
+        Gson gson = new Gson();
+        return gson.toJson(mapCartons);
     }
 
 

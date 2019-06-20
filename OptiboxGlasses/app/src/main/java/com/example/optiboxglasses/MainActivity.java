@@ -7,7 +7,11 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+<<<<<<< HEAD
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+=======
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+>>>>>>> Bluetooth avec BluetoothCom, not working
     private Button btnStart;
 
     private static final String TAG = "MainActivity";
@@ -17,6 +21,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         btnStart = findViewById(R.id.btnStart);
         btnStart.setOnClickListener(this);
     }
@@ -25,8 +34,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btnStart:
-                Intent toResceptionBluetooth = new Intent(this, ReceptionBluetooth.class);
-                startActivity(toResceptionBluetooth);
+                Intent toReceptionBluetooth = new Intent(this, ReceptionBluetooth.class);
+                startActivity(toReceptionBluetooth);
         }
     }
 }
