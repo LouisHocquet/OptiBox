@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,28 +20,32 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickListener {
 
-    private Button btnConnexionBluetooth;
-    private TextView tvResultBluetooth;
-    private Map<Integer, Integer> mapCartons;
-    private TextView tvMapCartons;
-    private BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    private Set<BluetoothDevice> pairedDevices;
-    private String deviceName;
-    private String deviceAddress;
+    private String TAG = "Bluetooth";
 
-    private String CAT = "Bluetooth";
+    private BluetoothAdapter bluetoothAdapter;
+    private BluetoothDevice bluetoothDevice;
+    private Button btnConnexionBluetooth;
+    private  Button btnRunServer;
+    private TextView tvRunServer;
+    private TextView tvConnexionBluetooth;
+    private Set<BluetoothDevice> pairedDevices;
+
+
 
     // Fonction alerter()
     private void alerter(String s){
         Toast toastAlert = Toast.makeText(this, s, Toast.LENGTH_SHORT);
         toastAlert.show();
-        Log.i(CAT, s);
+        Log.i(TAG, s);
     }
 
     @Override
@@ -52,57 +58,17 @@ public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickLis
     protected void onStart() {
         super.onStart();
         btnConnexionBluetooth = findViewById(R.id.btnConnexionBluetooth);
-        tvResultBluetooth = findViewById(R.id.tvResultBluetooth);
-        tvMapCartons = findViewById(R.id.tvMapCartons);
+        tvConnexionBluetooth = findViewById(R.id.tvConnexionBluetooth);
 
-        // Mise en place d'un gestionnaire de clic
-        btnConnexionBluetooth.setOnClickListener(this);
+        btnRunServer = findViewById(R.id.btnRunServer);
+        tvRunServer = findViewById(R.id.tvRunServer);
 
-        // Récupération de mapCartons
-        Bundle myBdl = this.getIntent().getExtras();
-        mapCartons = (HashMap) myBdl.getSerializable("mapCartons");
-        tvMapCartons.setText(mapCartons.toString());
-
-        // #################### SETUP BLUETOOTH #################################
-
-        // Bluetooth pris en charge ?
-        tvResultBluetooth.setText("Connexion Bluetooth ...");
-        if(isBluetoothOk(bluetoothAdapter)) tvResultBluetooth.setText("Bluetooth ok !");
-        else tvResultBluetooth.setText("Bluetooth pas ok ...");
-
-        // Vérification que Bluetooth est activé, sinon on demande l'autorisation
-        if (!bluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, 1); //request code > 0
-
-            // if success --> l'activité reçoit RESULT_OK (onActivityResult() )
-            // else --> l'activité reçoit RESULT_CANCELED
-
-        }
-
-        // ################## FIND DEVICES #####################################
-
-        // Retrouver les appareils déjà apairés
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         pairedDevices = bluetoothAdapter.getBondedDevices();
+        tvConnexionBluetooth.setText(pairedDevices.toString());
 
-        if (pairedDevices.size() > 0) {
-            // There are paired devices. Get the name and address of each paired device.
-//            for (BluetoothDevice device : pairedDevices) {
-//                String deviceName = device.getName();
-//                String deviceHardwareAddress = device.getAddress(); // MAC address
-
-            alerter("il y a des appareils apairés");
-            } else {
-            alerter(" 0 appareil apairé");
-        }
-
-        // Scanner les appareils à portée (Discovery)
-        // Register for broadcasts when a device is discovered.
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(receiver, filter);
-
-
-
+        btnConnexionBluetooth.setOnClickListener(this);
+        btnRunServer.setOnClickListener(this);
     }
 
     @Override
@@ -110,6 +76,7 @@ public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickLis
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RESULT_OK){
+            tvConnexionBluetooth.setText("Bluetooth actif");
             alerter("Bluetooth actif !");
         } else {
             alerter("Bluetooth inactif ...");
@@ -117,37 +84,22 @@ public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickLis
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(receiver);
-    }
-
-    @Override
     public void onClick(View v) {
-        switch(v.getId()){
+        switch (v.getId()){
             case R.id.btnConnexionBluetooth:
-                tvResultBluetooth.setText("Connexion Bluetooth ...");
-                if(isBluetoothOk(bluetoothAdapter)) tvResultBluetooth.setText("Bluetooth ok !");
-                else tvResultBluetooth.setText("Bluetooth pas ok ...");
+                if (isBluetoothOk(bluetoothAdapter)){
+//                    tvConnexionBluetooth.setText("Bluetooth ok");
+                    if(activerBluetooth(bluetoothAdapter)) tvConnexionBluetooth.setText("" +
+                            "Bluetooth actif");
+                }
+                else tvConnexionBluetooth.setText("Bluetooth kaput");
                 break;
+
+            case R.id.btnRunServer:
+                AcceptThread acceptThread = new AcceptThread();
+                acceptThread.run();
         }
     }
-
-    // ######################## BroadcastReceiver for ACTION_FOUND.
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                // Discovery has found a device. Get the BluetoothDevice
-                // object and its info from the Intent.
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                deviceName = device.getName();
-                deviceAddress = device.getAddress(); // MAC address
-                alerter("device name = " + deviceName + ", deviceAddress = " + deviceAddress);
-            }
-        }
-    };
-
 
     /**
      *
@@ -159,6 +111,22 @@ public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickLis
             return false;
         } else {
             alerter("Bluetooth supporté");
+            return true;
+        }
+    }
+
+    public boolean activerBluetooth(BluetoothAdapter bluetoothAdapter){
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, 1); //request code > 0
+
+            // if success --> l'activité reçoit RESULT_OK (onActivityResult() )
+            // else --> l'activité reçoit RESULT_CANCELED
+            alerter("activation");
+            return false;
+
+        } else {
+            alerter("déjà actif");
             return true;
         }
     }
@@ -175,4 +143,59 @@ public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickLis
         Gson gson = new Gson();
         return gson.toJson(mapCartons);
     }
+
+    // ############## Connect as a server ###############################################
+    private class AcceptThread extends Thread {
+        private final BluetoothServerSocket mmServerSocket;
+
+        public AcceptThread() {
+            // Use a temporary object that is later assigned to mmServerSocket
+            // because mmServerSocket is final.
+            BluetoothServerSocket tmp = null;
+            try {
+                // MY_UUID is the app's UUID string, also used by the client code.
+                tmp = bluetoothAdapter.listenUsingRfcommWithServiceRecord("Optibox", UUID.fromString("1da2c6c6-f44c-4cfb-96cd-f6a7ea7db0a1"));
+            } catch (IOException e) {
+                Log.e(TAG, "Socket's listen() method failed", e);
+            }
+            mmServerSocket = tmp;
+        }
+
+        public void run() {
+            BluetoothSocket socket = null;
+            // Keep listening until exception occurs or a socket is returned.
+            while (true) {
+                try {
+                    socket = mmServerSocket.accept();
+                    alerter("succès");
+                } catch (IOException e) {
+                    Log.e(TAG, "Socket's accept() method failed", e);
+                    break;
+                }
+
+                if (socket != null) {
+                    // A connection was accepted. Perform work associated with
+                    // the connection in a separate thread.
+                    tvConnexionBluetooth.setText("Connexion acceptée");
+                    try {
+                        mmServerSocket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Closes the connect socket and causes the thread to finish.
+        public void cancel() {
+            try {
+                mmServerSocket.close();
+            } catch (IOException e) {
+                Log.e(TAG, "Could not close the connect socket", e);
+            }
+        }
+    }
+
+
 }
