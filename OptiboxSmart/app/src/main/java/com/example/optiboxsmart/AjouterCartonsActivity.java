@@ -20,7 +20,8 @@ import java.util.Map;
 
 public class AjouterCartonsActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private Map<Integer, Integer> mapCartons;
+    private ArrayList<Integer> listeCartons;
+
     private TextView tvNbType1;
     private TextView tvNbType2;
     private TextView tvNbType3;
@@ -57,7 +58,7 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ajouter_cartons);
-        mapCartons = new HashMap<>();
+
     }
 
     @Override
@@ -82,11 +83,9 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
         tvNbType5 = findViewById(R.id.tvType5);
         tvNbType6 = findViewById(R.id.tvType6);
 
-        btnValiderCartons = findViewById(R.id.btnValiderCartons);
+        listeCartons = new ArrayList<>(Arrays.asList(0,0,0,0,0,0));
 
-        for (int i = 0; i < 6; i++) {
-            mapCartons.put(i+1, 0);
-        }
+        btnValiderCartons = findViewById(R.id.btnValiderCartons);
 
         listNbCartons = new ArrayList<>(Arrays.asList(tvNbType1, tvNbType2, tvNbType3,
                 tvNbType4, tvNbType5, tvNbType6));
@@ -115,11 +114,11 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
         boolean succes = false;
         if (typeCarton > 6 || typeCarton < 1) return false;
         else{
-            int nbCartons = mapCartons.get(typeCarton);
+            int nbCartons = listeCartons.get(typeCarton - 1);
             nbCartons++;
 
-            mapCartons.put(typeCarton, nbCartons);
-//            alerter(String.valueOf(mapCartons.get(typeCarton)));
+            listeCartons.set(typeCarton - 1, nbCartons);
+            alerter(String.valueOf(listeCartons.get(typeCarton - 1)));
             listNbCartons.get(typeCarton-1).setText(String.valueOf(nbCartons));
             return true;
         }
@@ -134,10 +133,11 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
         boolean succes = false;
         if (typeCarton > 6 || typeCarton < 1) return false;
         else{
-            int nbCartons = mapCartons.get(typeCarton);
+            int nbCartons = listeCartons.get(typeCarton - 1);
             nbCartons--;
             nbCartons = Math.max(nbCartons, 0);
-            mapCartons.put(typeCarton, nbCartons);
+            listeCartons.set(typeCarton - 1, nbCartons);
+            alerter(String.valueOf(listeCartons.get(typeCarton - 1)));
             listNbCartons.get(typeCarton-1).setText(String.valueOf(nbCartons));
             return true;
         }
@@ -188,7 +188,7 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
 
             case R.id.btnValiderCartons:
                 Bundle myBdl = new Bundle();
-                myBdl.putSerializable("mapCartons", (HashMap) mapCartons);
+                myBdl.putSerializable("listeCartons", listeCartons);
                 Intent toEnvoiBluetooth = new Intent(this, EnvoiBluetooth.class);
                 toEnvoiBluetooth.putExtras(myBdl);
                 startActivity(toEnvoiBluetooth);

@@ -70,9 +70,9 @@ public class EnvoiBluetooth2 extends AppCompatActivity implements View.OnClickLi
         super.onStart();
         btnConnexionBluetooth = findViewById(R.id.btnConnexionBluetooth);
         tvResultBluetooth = findViewById(R.id.tvConnexionBluetooth);
-        tvMapCartons = findViewById(R.id.tvMapCartons);
-        btnFindDevices = findViewById(R.id.btnFindDevices);
-        tvFindDevices = findViewById(R.id.tvFindDevices);
+        tvMapCartons = findViewById(R.id.tvListeCartons);
+        btnFindDevices = findViewById(R.id.btnEnvoiData);
+        tvFindDevices = findViewById(R.id.tvRecupData);
         btnDiscoverable = findViewById(R.id.btnDiscoverable);
         tvDiscoverable = findViewById(R.id.tvDiscoverable);
 
@@ -159,7 +159,7 @@ public class EnvoiBluetooth2 extends AppCompatActivity implements View.OnClickLi
                 tvDiscoverable.setText("discoverable pendant 300 secondes");
                 break;
 
-            case R.id.btnFindDevices:
+            case R.id.btnEnvoiData:
                 // ################## FIND DEVICES #####################################
                 // Retrouver les appareils déjà apairés
                 pairedDevices = bluetoothAdapter.getBondedDevices();

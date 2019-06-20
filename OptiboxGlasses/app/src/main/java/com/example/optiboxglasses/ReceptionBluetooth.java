@@ -10,7 +10,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,30 +22,31 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 public class ReceptionBluetooth extends AppCompatActivity implements View.OnClickListener{
-    private Button btnConnexionBluetooth;
-    private TextView tvResultBluetooth;
-    private Map<Integer, Integer> mapCartons;
-    private TextView tvMapCartons;
-    private BluetoothAdapter bluetoothAdapter;
-    private Button btnDiscoverable;
-    private TextView tvDiscoverable;
-    private Set<BluetoothDevice> pairedDevices;
-    private String deviceName;
-    private String deviceAddress;
 
-    private Button btnRunClient;
-    private Button btnStopClient;
-    private TextView tvRunClient;
-    private ConnectThread connectThread;
+    private ArrayList<Integer> listeCartons;
+    private TextView tvCartons;
+
+
+    private BluetoothAdapter bluetoothAdapter;
     private BluetoothDevice bluetoothDevice;
-    private Button btnFindDevices;
-    private TextView tvFindDevices;
+    private Set<BluetoothDevice> pairedDevices;
+
+    private ConnectThread connectThread;
+
+    private Button btnRecupData;
+    private TextView tvRecupData;
+
+    private List<double[]> listeDouble = new ArrayList<>();
+
+//    private SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+//    private SharedPreferences.Editor editor = settings.edit();
 
     private String CAT = "Bluetooth";
 
@@ -63,116 +66,34 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
     @Override
     protected void onStart() {
         super.onStart();
-        btnConnexionBluetooth = findViewById(R.id.btnConnexionBluetooth);
-        tvResultBluetooth = findViewById(R.id.tvReceptionBluetooth);
-        tvMapCartons = findViewById(R.id.tvMapCartons);
-        btnDiscoverable = findViewById(R.id.btnDiscoverable);
-        tvDiscoverable = findViewById(R.id.tvDiscoverable);
-        btnFindDevices = findViewById(R.id.btnFindDevices);
-        tvFindDevices = findViewById(R.id.tvFindDevices);
+        tvCartons = findViewById(R.id.tvListeCartons);
+        btnRecupData = findViewById(R.id.btnRecupData);
+        tvRecupData = findViewById(R.id.tvRecupData);
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         pairedDevices = bluetoothAdapter.getBondedDevices();
 
-        btnRunClient = findViewById(R.id.btnRunClient);
-        btnStopClient = findViewById(R.id.btnStopClient);
-        tvRunClient = findViewById(R.id.tvRunClient);
 
         // Gestionnaire de clic
-        btnDiscoverable.setOnClickListener(this);
-        btnConnexionBluetooth.setOnClickListener(this);
-        btnFindDevices.setOnClickListener(this);
+        btnRecupData.setOnClickListener(this);
 
-        btnRunClient.setOnClickListener(this);
-        btnStopClient.setOnClickListener(this);
-
-        // #################### SETUP BLUETOOTH #################################
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-        // Bluetooth pris en charge ?
-/*        tvResultBluetooth.setText("Connexion Bluetooth ...");
-        if(isBluetoothOk(bluetoothAdapter)) tvResultBluetooth.setText("Bluetooth ok !");
-        else tvResultBluetooth.setText("Bluetooth pas ok ...");*/
-
-        tvResultBluetooth.setText(pairedDevices.toString());
+        tvRecupData.setText(pairedDevices.toString());
 
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == RESULT_CANCELED){
-            alerter("Appareil non détectable");
-        } else {
-            alerter("Appareil détectable pendant " + requestCode + " s");
-        }
-    }
-
-    /**
-     *
-     * @return true si l'appareil supporte Bluetooth
-     */
-    public boolean isBluetoothOk(BluetoothAdapter bluetoothAdapter){
-        if (bluetoothAdapter == null){
-            alerter("Bluetooth non supporté");
-            return false;
-        } else {
-            alerter("Bluetooth supporté");
-            return true;
-        }
-    }
-
-    // Vérification que Bluetooth est activé, sinon on demande l'autorisation
-    public void activationBluetooth(BluetoothAdapter bluetoothAdapter){
-        if (!bluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, 1); //request code > 0
-            tvResultBluetooth.setText("Bluetooth activé");
-
-
-            // if success --> l'activité reçoit RESULT_OK (onActivityResult() )
-            // else --> l'activité reçoit RESULT_CANCELED
-
-        } else {
-            tvResultBluetooth.setText("Bluetooth déjà activé");
-        }
-    }
-
-    // ############### Sérialisation/ Désérialisation ###################################
-    public Map<Integer, Integer> deserialisation(String jsonMapCartons){
-        Gson gson = new Gson();
-        Map<Integer, Integer> mapCartons = gson.fromJson(jsonMapCartons, Map.class);
-        return mapCartons;
-    }
-
-
-    public String serialisation(Map<Integer, Integer> mapCartons){
-        Gson gson = new Gson();
-        return gson.toJson(mapCartons);
-    }
 
     @Override
     public void onClick(View v) {
         switch(v.getId()){
-            case R.id.btnConnexionBluetooth:
-                activationBluetooth(bluetoothAdapter);
-                break;
-            case R.id.btnDiscoverable:
-                // l'appareil est discoverable pendant 300 secondes
-                Intent discoverableIntent =
-                        new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-                discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-                startActivity(discoverableIntent);
-                alerter("l'appareil est détectable pendant 5 minutes");
-                tvDiscoverable.setText("discoverable pendant 300 secondes");
-                break;
 
-            case R.id.btnFindDevices:
+//            String mac = settings.getString("MAC", null);
+
+            case R.id.btnRecupData:
                 // ################## FIND DEVICES #####################################
                 // Retrouver les appareils déjà apairés
                 pairedDevices = bluetoothAdapter.getBondedDevices();
-                tvFindDevices.setText(pairedDevices.toString());
+                tvRecupData.setText(pairedDevices.toString());
 
                 if (pairedDevices.size() > 0) {
                     // There are paired devices. Get the name and address of each paired device.
@@ -182,40 +103,12 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
                        connectThread = new ConnectThread(device);
                        connectThread.run();
                    }
-
-                    alerter("il y a des appareils apairés");
-                } else {
-                    alerter(" 0 appareil apairé");
-
-                    // Scanner les appareils à portée (Discovery)
-                    // Register for broadcasts when a device is discovered.
-                    IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-                    registerReceiver(receiver, filter);
                 }
                 break;
 
-            case R.id.btnRunClient:
-                //
 
         }
     }
-
-    // ######################## BroadcastReceiver for ACTION_FOUND.
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                // Discovery has found a device. Get the BluetoothDevice
-                // object and its info from the Intent.
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                deviceName = device.getName();
-                deviceAddress = device.getAddress(); // MAC address
-                pairedDevices.add(device);
-                bluetoothDevice = device;
-                alerter("device name = " + deviceName + ", deviceAddress = " + deviceAddress);
-            }
-        }
-    };
 
     // ############## Connect as a client ################################################
     private class ConnectThread extends Thread {
@@ -246,8 +139,14 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
                 // Connect to the remote device through the socket. This call blocks
                 // until it succeeds or throws an exception.
                 mmSocket.connect();
-                tvRunClient.setText("succès");
+                tvRecupData.setText("succès");
                 bluetoothDevice=mmDevice;
+                BluetoothCom bluetoothCom = new BluetoothCom(mmSocket);
+                bluetoothCom.run();
+                while(bluetoothCom.getResult()!=""){
+                    alerter(bluetoothCom.getResult());
+                }
+
             } catch (IOException connectException) {
                 // Unable to connect; close the socket and return.
                 try {
@@ -271,6 +170,19 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
                 Log.e(CAT, "Could not close the client socket", e);
             }
         }
+    }
+
+    // ############### Sérialisation/ Désérialisation ###################################
+    public Map<Integer, Integer> deserialisation(String jsonMapCartons){
+        Gson gson = new Gson();
+        Map<Integer, Integer> mapCartons = gson.fromJson(jsonMapCartons, Map.class);
+        return mapCartons;
+    }
+
+
+    public String serialisation(Map<Integer, Integer> mapCartons){
+        Gson gson = new Gson();
+        return gson.toJson(mapCartons);
     }
 
 }

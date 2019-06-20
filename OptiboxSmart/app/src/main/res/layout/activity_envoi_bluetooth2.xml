@@ -35,7 +35,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btnConnexionBluetooth" />
 
     <TextView
-        android:id="@+id/tvMapCartons"
+        android:id="@+id/tvListeCartons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -47,7 +47,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/btnFindDevices"
+        android:id="@+id/btnEnvoiData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -59,7 +59,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tvConnexionBluetooth" />
 
     <TextView
-        android:id="@+id/tvFindDevices"
+        android:id="@+id/tvRecupData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -68,7 +68,7 @@
         android:text="TextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnFindDevices" />
+        app:layout_constraintTop_toBottomOf="@+id/btnEnvoiData" />
 
     <Button
         android:id="@+id/btnRunServer"
@@ -80,7 +80,7 @@
         android:text="Run Server"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvFindDevices" />
+        app:layout_constraintTop_toBottomOf="@+id/tvRecupData" />
 
     <TextView
         android:id="@+id/tvRunServer"
@@ -116,7 +116,7 @@
         android:text="Discoverable"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvMapCartons" />
+        app:layout_constraintTop_toBottomOf="@+id/tvListeCartons" />
 
     <TextView
         android:id="@+id/tvDiscoverable"
