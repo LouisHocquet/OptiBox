@@ -7,11 +7,9 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-<<<<<<< HEAD
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-=======
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
->>>>>>> Bluetooth avec BluetoothCom, not working
+
     private Button btnStart;
 
     private static final String TAG = "MainActivity";

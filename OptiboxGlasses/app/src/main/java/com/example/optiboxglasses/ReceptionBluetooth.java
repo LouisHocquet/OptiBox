@@ -3,6 +3,7 @@ package com.example.optiboxglasses;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,7 +14,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -197,7 +197,9 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
                     @Override
                     public void run() {
                         alerter(result);
-
+                        Intent intentOpenGL = new Intent(ReceptionBluetooth.this,OpenGLES20Activity.class);
+                        intentOpenGL.putExtra("jsonCardboards",result);
+                        startActivity(intentOpenGL);
                     }
                 });
 
