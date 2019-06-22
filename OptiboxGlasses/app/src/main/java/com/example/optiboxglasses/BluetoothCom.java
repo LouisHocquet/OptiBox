@@ -2,8 +2,6 @@ package com.example.optiboxglasses;
 
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -18,23 +16,8 @@ public class BluetoothCom {
     private String result = "";
     private com.example.optiboxglasses.MyBluetoothService bs;
     private List<double[]> listeCartons = new ArrayList<>();
-    private final Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MESSAGE_READ:
-                    byte[] readBuf = (byte[]) msg.obj;
-                    // construct a string from the valid bytes in the buffer
-                    String readMessage = new String(readBuf, 0, msg.arg1);
-                    Log.v("BLUETOOTH_COM",readMessage);
-                    result=readMessage;
-                    bs.setDataReceived(true);
-                    break;
 
-            }
-        }
-    };
-    public BluetoothCom(BluetoothSocket socket){
+    public BluetoothCom(Handler handler, BluetoothSocket socket){
         bs = new MyBluetoothService(handler,socket);
     }
     //    public void addCarton(Double[] posCarton){
@@ -49,6 +32,13 @@ public class BluetoothCom {
     public void run(){bs.run();}
     public String getResult(){
         return result;
+    }
+    public boolean isDataReceived() {
+        return this.bs.isDataReceived();
+    }
+
+    public void setDataReceived(boolean dataReceived) {
+        this.bs.setDataReceived(dataReceived);
     }
 }
 
