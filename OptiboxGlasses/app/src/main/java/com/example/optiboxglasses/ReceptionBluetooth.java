@@ -53,8 +53,10 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
                     // construct a string from the valid bytes in the buffer
                     String readMessage = new String(readBuf, 0, msg.arg1);
                     Log.v("BLUETOOTH_COM",readMessage);
-                    if(bluetoothCom!=null)
+                    if(bluetoothCom!=null){
                         bluetoothCom.setDataReceived(true);
+                        bluetoothCom.setResult(readMessage);
+                    }
                     break;
 
             }
@@ -196,7 +198,6 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
                 ReceptionBluetooth.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        alerter(result);
                         Intent intentOpenGL = new Intent(ReceptionBluetooth.this,OpenGLES20Activity.class);
                         intentOpenGL.putExtra("jsonCardboards",result);
                         startActivity(intentOpenGL);

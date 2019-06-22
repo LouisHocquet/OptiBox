@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class AjouterCartonsActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private ArrayList<Integer> listeCartons;
+    private ArrayList<Integer> listeCartons = new ArrayList<>(Arrays.asList(0,0,0,0,0,0));
 
     private TextView tvNbType1;
     private TextView tvNbType2;
@@ -82,8 +82,6 @@ public class AjouterCartonsActivity extends AppCompatActivity implements View.On
         tvNbType4 = findViewById(R.id.tvType4);
         tvNbType5 = findViewById(R.id.tvType5);
         tvNbType6 = findViewById(R.id.tvType6);
-
-        listeCartons = new ArrayList<>(Arrays.asList(0,0,0,0,0,0));
 
         btnValiderCartons = findViewById(R.id.btnValiderCartons);
 

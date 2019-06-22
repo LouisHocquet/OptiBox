@@ -17,11 +17,15 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.optiboxsmart.clp_solver.Box;
+import com.example.optiboxsmart.clp_solver.Loader;
 import com.google.gson.Gson;
 
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -164,7 +168,7 @@ public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickLis
                         }
                     });
                     BluetoothCom bluetoothCom = new BluetoothCom(handler,socket);
-                    bluetoothCom.setCartons(listeDouble);
+                    bluetoothCom.setCartons(getCardboardsCoordsList());
                     try {
                         bluetoothCom.send();
                     } catch (IOException e) {
@@ -191,6 +195,21 @@ public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickLis
             }
         }
     }
+
+    private List<int[]> getCardboardsCoordsList() {
+        /* Testing CLP */
+
+        Object[] boxNumber = listeCartons.toArray();
+
+        HashMap<Box, Integer> cargo = new HashMap<>();
+        for (int n = 0; n < 6; n++){
+            cargo.put(MainActivity.boxTypes[n], (int) boxNumber[n]);
+        }
+
+        Loader clp = new Loader(MainActivity.containerDim, cargo);
+        List<int[]> boxes = clp.solveToArray();
+        return boxes;
+    };
 
     // ############### Sérialisation/ Désérialisation ###################################
     public Map<Integer, Integer> deserialisation(String jsonMapCartons){

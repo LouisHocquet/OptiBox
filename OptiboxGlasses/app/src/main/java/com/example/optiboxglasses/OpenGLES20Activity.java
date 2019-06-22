@@ -1,10 +1,7 @@
 package com.example.optiboxglasses;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.graphics.Color;
-import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -12,9 +9,13 @@ import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 
@@ -24,25 +25,43 @@ public class OpenGLES20Activity extends AppCompatActivity {
     private CustomGLSurfaceView gLView;
     private SpeechRecognizer speechRecognizer;
     private TextView textOutput;
+    private Button btnUpdate;
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        String cardboardsJson = getIntent().getStringExtra("jsonCardboards");
+
+
         // Create a GLSurfaceView instance and set it
         // as the ContentView for this Activity.
-        gLView = new CustomGLSurfaceView(this);
+        gLView = new CustomGLSurfaceView(this,cardboardsJson);
 
         setContentView(gLView);
 
         textOutput = new TextView(this);
         textOutput.setText("");
         textOutput.setTextColor(Color.WHITE);
-        textOutput.setTextSize(TypedValue.COMPLEX_UNIT_SP, 32);
+        textOutput.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.BOTTOM;
+
+        btnUpdate = new Button(this);
+        btnUpdate.setText("MAJ");
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gLView.updateCardboardsList();
+            }
+        });
+        FrameLayout.LayoutParams btnParams = new FrameLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        btnParams.gravity = Gravity.BOTTOM|Gravity.END;
+
+
         addContentView(textOutput, params);
+        addContentView(btnUpdate, btnParams);
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecognizer.setRecognitionListener(new OpenGLES20Activity.SpeechListener());
@@ -56,6 +75,13 @@ public class OpenGLES20Activity extends AppCompatActivity {
         intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false);
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1);
         speechRecognizer.startListening(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(speechRecognizer!=null)
+            speechRecognizer.destroy();
     }
 
     public class SpeechListener implements RecognitionListener {

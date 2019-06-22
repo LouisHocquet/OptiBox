@@ -25,7 +25,7 @@ public class BluetoothCom {
 //    }
     public void setCartons(List<double[]> listeCartons) {this.listeCartons = listeCartons;}
     public void send() throws IOException {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Gson gson = new GsonBuilder().create();
         s = gson.toJson(listeCartons);
         bs.write(s.getBytes());
     }
@@ -39,6 +39,10 @@ public class BluetoothCom {
 
     public void setDataReceived(boolean dataReceived) {
         this.bs.setDataReceived(dataReceived);
+    }
+
+    public void setResult(String readMessage) {
+        result=readMessage;
     }
 }
 

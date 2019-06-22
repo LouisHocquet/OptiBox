@@ -2,11 +2,6 @@ package com.example.optiboxglasses;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
-import javax.microedition.khronos.egl.EGL10;
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.egl.EGLContext;
-import javax.microedition.khronos.egl.EGLDisplay;
-import javax.microedition.khronos.opengles.GL10;
 import android.view.MotionEvent;
 
 class CustomGLSurfaceView extends GLSurfaceView {
@@ -56,14 +51,14 @@ class CustomGLSurfaceView extends GLSurfaceView {
     }
 
 
-    public CustomGLSurfaceView(Context context){
+    public CustomGLSurfaceView(Context context,String cardboardJSON){
         super(context);
 
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2);
         //setEGLConfigChooser(new ConfigChooser());
 
-        renderer = new CustomGLRenderer();
+        renderer = new CustomGLRenderer(cardboardJSON);
         // Set the Renderer for drawing on the GLSurfaceView
         setRenderer(renderer);
         // Render the view only when there is a change in the drawing data (on requestRender() call only)

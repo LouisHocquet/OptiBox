@@ -15,10 +15,9 @@ import java.util.List;
 
 public class BluetoothCom {
     private final int MESSAGE_READ = 0;
-    private String s = "";
     private String result = "";
     private MyBluetoothService bs;
-    private List<double[]> listeCartons = new ArrayList<>();
+    private List<int[]> listeCartons = new ArrayList<>();
 
     public BluetoothCom(Handler handler,BluetoothSocket socket){
         bs = new MyBluetoothService(handler,socket);
@@ -27,10 +26,10 @@ public class BluetoothCom {
 //    public void addCarton(Double[] posCarton){
 //        listeCartons.add(posCarton);
 //    }
-    public void setCartons(List<double[]> listeCartons) {this.listeCartons = listeCartons;}
+    public void setCartons(List<int[]> listeCartons) {this.listeCartons = listeCartons;}
     public void send() throws IOException {
         Gson gson = new GsonBuilder().create();
-        s = gson.toJson(listeCartons);
+        String s = gson.toJson(listeCartons);
         bs.write(s.getBytes());
     }
     public void run(){bs.run();}

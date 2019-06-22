@@ -21,6 +21,16 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private Button btnStart;
     private static final String TAG = "MainActivity";
+    public static  Box[] boxTypes = new Box[]{
+            new Box(4, 10, 10,new byte[]{1, 1, 1}),
+            new Box(10, 5, 3, new byte[]{1, 1, 1}),
+            new Box(20, 15, 5, new byte[]{1, 1, 1}),
+            new Box(8, 4, 15,new byte[]{1, 1, 1}),
+            new Box(7, 15, 7, new byte[]{1, 1, 1}),
+            new Box(6, 2, 3, new byte[]{1, 1, 1}),
+    };
+    public static double[] containerDim = new double[]{60, 23, 23};
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,30 +45,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnStart = findViewById(R.id.btnStart);
         btnStart.setOnClickListener(this);
 
-        /* Testing CLP */
-        Box[] boxTypes = new Box[]{
-                new Box(new double[]{100, 76, 30}),
-                new Box(110, 43, 25, new byte[]{0, 1, 1}),
-                new Box(92, 81, 55, new byte[]{1, 1, 1}),
-                new Box(new double[]{200, 26, 18}),
-                new Box(50, 143, 14, new byte[]{0, 1, 1}),
-                new Box(29, 92, 13, new byte[]{1, 1, 1}),
-        };
-        double[] containerDim = new double[]{587, 233, 220};
-        int[] boxNumber = new int[]{40, 33, 39, 0, 0, 0};
-
-        HashMap<Box, Integer> cargo = new HashMap<>();
-        for (int n = 0; n < 6; n++){
-            cargo.put(boxTypes[n], boxNumber[n]);
-        }
-
-
-        Loader clp = new Loader(containerDim, cargo);
-        List<double[]> boxes = clp.solveToArray();
-        for (double[] d : boxes){
-            Log.i(TAG, Arrays.toString(d) + ",");
-        }
-        /* End testing CLP*/
     }
 
     @Override

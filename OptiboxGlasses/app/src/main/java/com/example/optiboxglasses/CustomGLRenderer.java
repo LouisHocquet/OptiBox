@@ -4,6 +4,9 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +24,6 @@ class CustomGLRenderer implements GLSurfaceView.Renderer {
     private float[] rotationMatrix = new float[16];
 
     public volatile float mAngle;
-    private List<FullBlock> cardboards = new ArrayList<>();
     private List<Line> mLines = new ArrayList<>();
 
 
@@ -44,6 +46,30 @@ class CustomGLRenderer implements GLSurfaceView.Renderer {
     static final float green[] = {0.0f,1.0f,0.0f,1.0f};
     static final float grey[] = {0.4f,0.4f,0.4f,1.0f};
 
+    private List<FullBlock> cardboards = new ArrayList<>();
+    private List<FullBlock> fullCardboardsList  = new ArrayList<>();
+    private int currentIndex=0;
+
+    public CustomGLRenderer(String cardboardJSON) {
+
+        try {
+            JSONArray jsonArray = new JSONArray(cardboardJSON);
+            for(int i=0;i<jsonArray.length();i++){
+                JSONArray coords = jsonArray.getJSONArray(i);
+                FullBlock tempFB = new FullBlock();
+                tempFB.setColor(green);
+                tempFB.setDiagonalAG(convertDataToCoords(
+                        coords.getInt(0),coords.getInt(1),coords.getInt(2),
+                        coords.getInt(3),coords.getInt(4),coords.getInt(5)));
+                fullCardboardsList.add(tempFB);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        currentIndex=0;
+
+    }
+
 
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
@@ -51,16 +77,7 @@ class CustomGLRenderer implements GLSurfaceView.Renderer {
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
-        FullBlock cardboard = new FullBlock();
-        cardboard.setColor(grey);
-        cardboard.setDiagonalAG(convertDataToCoords(0,0,camionLz-10,10,15,camionLz));
-        cardboards.add(cardboard);
-
-        cardboard = new FullBlock();
-        cardboard.setColor(green);
-        cardboard.setDiagonalAG(convertDataToCoords(10,0,camionLz-10,23,8,camionLz));
-        cardboards.add(cardboard);
-
+        cardboards.add(fullCardboardsList.get(currentIndex));
     }
 
     public void onDrawFrame(GL10 unused) {
@@ -146,12 +163,10 @@ class CustomGLRenderer implements GLSurfaceView.Renderer {
         return new float[]{xA*volexSize, yA*volexSize, -zA*volexSize, xG*volexSize, yG*volexSize, -zG*volexSize};
     }
 
-    public void updateCardboardsList() {
+    public void updateCardboardsList(){
         cardboards.get(cardboards.size() -1).setColor(grey);
-
-        FullBlock cardboard = new FullBlock();
-        cardboard.setColor(green);
-        cardboard.setDiagonalAG(convertDataToCoords(15,8,camionLz-10,23,15,camionLz));
-        cardboards.add(cardboard);
+        currentIndex++;
+        if(currentIndex<fullCardboardsList.size())
+            cardboards.add(fullCardboardsList.get(currentIndex));
     }
 }
