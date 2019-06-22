@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +25,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.example.optiboxglasses.MyBluetoothService.MessageConstants.MESSAGE_READ;
+
 public class ReceptionBluetooth extends AppCompatActivity implements View.OnClickListener{
 
     private ArrayList<Integer> listeCartons;
@@ -32,11 +36,29 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothDevice bluetoothDevice;
     private Set<BluetoothDevice> pairedDevices;
+    private BluetoothCom bluetoothCom;
 
     private ConnectThread connectThread;
 
     private Button btnRecupData;
     private TextView tvRecupData;
+
+    private final Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MESSAGE_READ:
+                    byte[] readBuf = (byte[]) msg.obj;
+                    // construct a string from the valid bytes in the buffer
+                    String readMessage = new String(readBuf, 0, msg.arg1);
+                    Log.v("BLUETOOTH_COM",readMessage);
+                    if(bluetoothCom!=null)
+                        bluetoothCom.setDataReceived(true);
+                    break;
+
+            }
+        }
+    };
 
     private List<double[]> listeDouble = new ArrayList<>();
 
@@ -105,13 +127,13 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
                        if(phoneMAC.equals(deviceHardwareAddress)){
                            preferedServerFound = true;
                            alerter("Hôte préféré trouvé, connexion...");
-                           (new ConnectThread(device)).run();
+                           (new ConnectThread(device)).start();
                            break;
                        }
                     }
                     if(!preferedServerFound){
                         for (BluetoothDevice device : pairedDevices)
-                            (new ConnectThread(device)).run();
+                            (new ConnectThread(device)).start();
                     }
                 }
                 break;
@@ -149,17 +171,35 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
                 // Connect to the remote device through the socket. This call blocks
                 // until it succeeds or throws an exception.
                 mmSocket.connect();
-                tvRecupData.setText("succès");
+                ReceptionBluetooth.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tvRecupData.setText("succès");
+                    }
+                });
                 bluetoothDevice=mmDevice;
                 phoneMAC = bluetoothDevice.getAddress();
                 editor.putString("phone_MAC_adress",phoneMAC);
                 editor.commit();
 
-                BluetoothCom bluetoothCom = new BluetoothCom(mmSocket);
+                bluetoothCom = new BluetoothCom(handler,mmSocket);
                 bluetoothCom.run();
-                while(bluetoothCom.getResult()!=""){
-                    alerter(bluetoothCom.getResult());
+                while(bluetoothCom.getResult()==""){
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
+                final String result = bluetoothCom.getResult();
+                ReceptionBluetooth.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        alerter(result);
+
+                    }
+                });
+
 
             } catch (IOException connectException) {
                 // Unable to connect; close the socket and return.
