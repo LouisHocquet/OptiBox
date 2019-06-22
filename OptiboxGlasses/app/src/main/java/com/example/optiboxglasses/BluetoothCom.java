@@ -8,8 +8,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,9 +32,7 @@ public class BluetoothCom {
         }
     };
     public BluetoothCom(BluetoothSocket socket){
-
-        bs = new com.example.optiboxglasses.MyBluetoothService(handler);
-
+        bs = new MyBluetoothService(handler,socket);
     }
     //    public void addCarton(Double[] posCarton){
 //        listeCartons.add(posCarton);
