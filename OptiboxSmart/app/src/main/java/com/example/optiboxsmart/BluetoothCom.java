@@ -27,15 +27,14 @@ public class BluetoothCom {
                     byte[] readBuf = (byte[]) msg.obj;
                     // construct a string from the valid bytes in the buffer
                     String readMessage = new String(readBuf, 0, msg.arg1);
-                    if(readMessage.endsWith("#"))result=readMessage;
+                    result=readMessage;
                     break;
 
             }
         }
     };
     public BluetoothCom(BluetoothSocket socket){
-
-        bs = new MyBluetoothService(handler);
+        bs = new MyBluetoothService(handler,socket);
 
     }
 //    public void addCarton(Double[] posCarton){
@@ -43,7 +42,7 @@ public class BluetoothCom {
 //    }
     public void setCartons(List<double[]> listeCartons) {this.listeCartons = listeCartons;}
     public void send() throws IOException {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Gson gson = new GsonBuilder().create();
         s = gson.toJson(listeCartons);
         bs.write(s.getBytes());
     }
