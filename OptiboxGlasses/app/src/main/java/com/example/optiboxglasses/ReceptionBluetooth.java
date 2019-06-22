@@ -1,15 +1,8 @@
 package com.example.optiboxglasses;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -18,6 +11,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
 
@@ -49,6 +44,8 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
 //    private SharedPreferences.Editor editor = settings.edit();
 
     private String CAT = "Bluetooth";
+    private String phoneMAC;
+    private SharedPreferences.Editor editor;
 
     // Fonction alerter()
     private void alerter(String s){
@@ -61,6 +58,11 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reception_bluetooth);
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(ReceptionBluetooth.this);
+        editor = sharedPref.edit();
+        phoneMAC = sharedPref.getString("phone_MAC_adress","none");
+
     }
 
     @Override
@@ -87,7 +89,6 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
     public void onClick(View v) {
         switch(v.getId()){
 
-//            String mac = settings.getString("MAC", null);
 
             case R.id.btnRecupData:
                 // ################## FIND DEVICES #####################################
@@ -96,13 +97,23 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
                 tvRecupData.setText(pairedDevices.toString());
 
                 if (pairedDevices.size() > 0) {
+
                     // There are paired devices. Get the name and address of each paired device.
-                   for (BluetoothDevice device : pairedDevices) {
+                    boolean preferedServerFound =false;
+                    for (BluetoothDevice device : pairedDevices) {
                        String deviceName = device.getName();
                        String deviceHardwareAddress = device.getAddress(); // MAC address
-                       connectThread = new ConnectThread(device);
-                       connectThread.run();
-                   }
+                       if(phoneMAC.equals(deviceHardwareAddress)){
+                           preferedServerFound = true;
+                           (new ConnectThread(device)).run();
+                           alerter("Hôte préféré trouvé, connexion...");
+                           break;
+                       }
+                    }
+                    if(!preferedServerFound){
+                        for (BluetoothDevice device : pairedDevices)
+                            (new ConnectThread(device)).run();
+                    }
                 }
                 break;
 
@@ -141,6 +152,9 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
                 mmSocket.connect();
                 tvRecupData.setText("succès");
                 bluetoothDevice=mmDevice;
+                phoneMAC = bluetoothDevice.getAddress();
+                editor.putString("phone_MAC_adress",phoneMAC);
+                editor.commit();
                 BluetoothCom bluetoothCom = new BluetoothCom(mmSocket);
                 bluetoothCom.run();
                 while(bluetoothCom.getResult()!=""){

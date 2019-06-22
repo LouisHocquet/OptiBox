@@ -22,7 +22,8 @@ public class MyBluetoothService {
 
         // ... (Add other message types here as needed.)
     }
-    public MyBluetoothService(Handler handler){
+    public MyBluetoothService(Handler handler,BluetoothSocket socket){
+        this.connectedThread = new ConnectedThread(socket);
         this.handler = handler;
     }
     public void write(byte[] out) {
