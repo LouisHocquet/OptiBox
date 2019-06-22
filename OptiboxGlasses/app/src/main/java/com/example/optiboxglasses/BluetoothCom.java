@@ -3,6 +3,7 @@ package com.example.optiboxglasses;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -25,7 +26,9 @@ public class BluetoothCom {
                     byte[] readBuf = (byte[]) msg.obj;
                     // construct a string from the valid bytes in the buffer
                     String readMessage = new String(readBuf, 0, msg.arg1);
-                    if(readMessage.endsWith("#"))result=readMessage;
+                    Log.v("BLUETOOTH_COM",readMessage);
+                    result=readMessage;
+                    bs.setDataReceived(true);
                     break;
 
             }

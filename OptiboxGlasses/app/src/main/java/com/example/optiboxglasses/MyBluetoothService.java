@@ -38,6 +38,8 @@ public class MyBluetoothService {
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
         private byte[] mmBuffer; // mmBuffer store for the stream
+        private boolean dataReceived = false;
+
 
         public ConnectedThread(BluetoothSocket socket) {
             mmSocket = socket;
@@ -66,7 +68,7 @@ public class MyBluetoothService {
             int numBytes; // bytes returned from read()
 
             // Keep listening to the InputStream until an exception occurs.
-            while (true) {
+            while (!isDataReceived()) {
                 try {
                     // Read from the InputStream.
                     numBytes = mmInStream.read(mmBuffer);
@@ -74,7 +76,7 @@ public class MyBluetoothService {
                     Message readMsg = handler.obtainMessage(
                             MessageConstants.MESSAGE_READ, numBytes, -1,
                             mmBuffer);
-                    readMsg.sendToTarget();
+                    handler.sendMessage(readMsg);
                 } catch (IOException e) {
                     Log.d(TAG, "Input stream was disconnected", e);
                     break;
@@ -99,5 +101,21 @@ public class MyBluetoothService {
                 Log.e(TAG, "Could not close the connect socket", e);
             }
         }
+
+        public boolean isDataReceived() {
+            return dataReceived;
+        }
+
+        public void setDataReceived(boolean dataReceived) {
+            this.dataReceived = dataReceived;
+        }
+    }
+
+    public boolean isDataReceived() {
+        return this.connectedThread.isDataReceived();
+    }
+
+    public void setDataReceived(boolean dataReceived) {
+        this.connectedThread.setDataReceived(dataReceived);
     }
 }

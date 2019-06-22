@@ -80,7 +80,6 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
         btnRecupData.setOnClickListener(this);
 
         tvRecupData.setText(pairedDevices.toString());
-
     }
 
 
@@ -105,8 +104,8 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
                        String deviceHardwareAddress = device.getAddress(); // MAC address
                        if(phoneMAC.equals(deviceHardwareAddress)){
                            preferedServerFound = true;
-                           (new ConnectThread(device)).run();
                            alerter("Hôte préféré trouvé, connexion...");
+                           (new ConnectThread(device)).run();
                            break;
                        }
                     }
@@ -155,6 +154,7 @@ public class ReceptionBluetooth extends AppCompatActivity implements View.OnClic
                 phoneMAC = bluetoothDevice.getAddress();
                 editor.putString("phone_MAC_adress",phoneMAC);
                 editor.commit();
+
                 BluetoothCom bluetoothCom = new BluetoothCom(mmSocket);
                 bluetoothCom.run();
                 while(bluetoothCom.getResult()!=""){
