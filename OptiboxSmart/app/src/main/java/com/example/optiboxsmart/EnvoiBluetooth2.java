@@ -183,7 +183,7 @@ public class EnvoiBluetooth2 extends AppCompatActivity implements View.OnClickLi
 
             case R.id.btnRunServer:
                 acceptThread = new AcceptThread();
-                acceptThread.run();
+                acceptThread.start();
                 alerter("Server lancé");
                 break;
 

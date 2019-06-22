@@ -8,6 +8,8 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -25,6 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.example.optiboxsmart.MyBluetoothService.MessageConstants.MESSAGE_READ;
+
 public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickListener {
 
     private String TAG = "Bluetooth";
@@ -41,6 +45,20 @@ public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickLis
     private Button btnRecupData;
     private TextView tvRecupData;
     private Set<BluetoothDevice> pairedDevices;
+    private final Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MESSAGE_READ:
+                    byte[] readBuf = (byte[]) msg.obj;
+                    // construct a string from the valid bytes in the buffer
+                    String readMessage = new String(readBuf, 0, msg.arg1);
+                    alerter(readMessage);
+                    break;
+
+            }
+        }
+    };
 
 
 
@@ -97,7 +115,7 @@ public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickLis
 
             case R.id.btnEnvoiData:
                 AcceptThread acceptThread = new AcceptThread();
-                acceptThread.run();
+                acceptThread.start();
         }
     }
 
@@ -139,8 +157,13 @@ public class EnvoiBluetooth extends AppCompatActivity implements View.OnClickLis
                 if (socket != null) {
                     // A connection was accepted. Perform work associated with
                     // the connection in a separate thread.
-                    tvRecupData.setText("Connexion acceptée");
-                    BluetoothCom bluetoothCom = new BluetoothCom(socket);
+                    EnvoiBluetooth.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tvRecupData.setText("Connexion acceptée");
+                        }
+                    });
+                    BluetoothCom bluetoothCom = new BluetoothCom(handler,socket);
                     bluetoothCom.setCartons(listeDouble);
                     try {
                         bluetoothCom.send();
