@@ -15,7 +15,7 @@ public class MyBluetoothService {
     private ConnectedThread connectedThread;
     // Defines several constants used when transmitting messages between the
     // service and the UI.
-    private interface MessageConstants {
+    public interface MessageConstants {
         public static final int MESSAGE_READ = 0;
         public static final int MESSAGE_WRITE = 1;
         public static final int MESSAGE_TOAST = 2;
@@ -31,7 +31,7 @@ public class MyBluetoothService {
         connectedThread.write(out);
     }
     public void run(){
-        connectedThread.run();
+        connectedThread.start();
     }
     private class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
